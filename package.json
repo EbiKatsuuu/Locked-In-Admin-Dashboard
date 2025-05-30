@@ -1,0 +1,12 @@
+{
+  "name": "locked-in-admin-dashboard",
+  "version": "1.0.0",
+  "description": "Admin dashboard with frontend and backend",
+  "scripts": {
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

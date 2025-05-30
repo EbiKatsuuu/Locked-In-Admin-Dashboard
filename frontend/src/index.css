@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 45 100% 50%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer components {
+  .dashboard-container {
+    @apply min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800 relative overflow-hidden;
+  }
+
+  .scanlines {
+    @apply absolute inset-0 pointer-events-none opacity-10;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      theme("colors.yellow.400") 2px,
+      theme("colors.yellow.400") 4px
+    );
+  }
+
+  .border-glow {
+    @apply absolute inset-0 pointer-events-none;
+  }
+
+  .border-glow-top {
+    @apply absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent animate-pulse;
+  }
+
+  .border-glow-bottom {
+    @apply absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent animate-pulse;
+  }
+
+  .border-glow-left {
+    @apply absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-yellow-400 to-transparent animate-pulse;
+  }
+
+  .border-glow-right {
+    @apply absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-yellow-400 to-transparent animate-pulse;
+  }
+
+  .dashboard-header {
+    @apply relative bg-blue-900 border-b-4 border-yellow-400 shadow-2xl;
+    box-shadow: 0 0 20px theme("colors.yellow.400"),
+      inset 0 0 20px rgba(250, 204, 21, 0.1);
+  }
+
+  .dashboard-title {
+    @apply text-6xl font-bold text-yellow-400 relative font-mono;
+    text-shadow: 0 0 10px theme("colors.yellow.400"),
+      0 0 20px theme("colors.yellow.400"), 0 0 30px theme("colors.yellow.400");
+    letter-spacing: 0.1em;
+  }
+
+  .dashboard-subtitle {
+    @apply text-2xl font-bold text-yellow-300 mt-2 font-mono;
+    text-shadow: 0 0 5px theme("colors.yellow.300");
+    letter-spacing: 0.15em;
+  }
+
+  .dashboard-status {
+    @apply text-yellow-400 mt-2 font-mono text-sm;
+  }
+
+  .arcade-button {
+    @apply px-6 py-3 flex items-center gap-2 font-bold font-mono transition-all duration-300 relative overflow-hidden;
+  }
+
+  .arcade-button-primary {
+    @apply bg-blue-800 border-2 border-yellow-400 text-yellow-400 hover:bg-blue-700;
+    box-shadow: 0 0 10px theme("colors.yellow.400"),
+      inset 0 0 10px rgba(250, 204, 21, 0.1);
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .arcade-button-secondary {
+    @apply bg-blue-900 border-2 border-yellow-300 text-yellow-300 hover:bg-blue-800;
+    box-shadow: 0 0 10px theme("colors.yellow.300"),
+      inset 0 0 10px rgba(250, 204, 21, 0.1);
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .stat-card {
+    @apply bg-blue-900 border-2 hover:scale-105 transition-all duration-300 relative overflow-hidden;
+    box-shadow: 0 0 15px theme("colors.yellow.400");
+  }
+
+  .stat-card-content {
+    @apply p-6 relative;
+  }
+
+  .stat-card-corner {
+    @apply absolute w-4 h-4 border-2 border-yellow-400;
+  }
+
+  .stat-card-corner-tl {
+    @apply top-2 left-2 border-l-2 border-t-2;
+  }
+
+  .stat-card-corner-tr {
+    @apply top-2 right-2 border-r-2 border-t-2;
+  }
+
+  .stat-card-corner-bl {
+    @apply bottom-2 left-2 border-l-2 border-b-2;
+  }
+
+  .stat-card-corner-br {
+    @apply bottom-2 right-2 border-r-2 border-b-2;
+  }
+
+  .stat-label {
+    @apply font-mono text-sm font-bold tracking-wider text-yellow-400;
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .stat-value {
+    @apply text-4xl font-bold font-mono mt-2 text-yellow-400;
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  .stat-suffix {
+    @apply text-xs font-mono mt-1 text-yellow-300;
+  }
+
+  .player-table {
+    @apply bg-blue-900 border-2 border-yellow-400 relative;
+    box-shadow: 0 0 20px theme("colors.yellow.400");
+  }
+
+  .table-header {
+    @apply bg-blue-800/50 border-b-2 border-yellow-400;
+  }
+
+  .table-header-cell {
+    @apply font-bold font-mono text-yellow-400 py-4 px-6;
+    text-shadow: 0 0 5px theme("colors.yellow.400");
+  }
+
+  .table-row {
+    @apply hover:bg-blue-800/30 transition-colors border-b border-yellow-400/30;
+  }
+
+  .table-cell {
+    @apply font-mono text-yellow-300 py-4 px-6;
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .search-input {
+    @apply pl-10 pr-4 py-3 bg-blue-900 border-2 border-yellow-400 text-yellow-400 font-mono rounded-none focus:outline-none focus:border-yellow-300 w-full sm:w-64;
+    box-shadow: 0 0 10px theme("colors.yellow.400"),
+      inset 0 0 10px rgba(250, 204, 21, 0.1);
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .filter-select {
+    @apply pl-10 pr-8 py-3 bg-blue-900 border-2 border-yellow-400 text-yellow-400 font-mono rounded-none focus:outline-none appearance-none;
+    box-shadow: 0 0 10px theme("colors.yellow.400"),
+      inset 0 0 10px rgba(250, 204, 21, 0.1);
+    text-shadow: 0 0 5px currentColor;
+  }
+}
