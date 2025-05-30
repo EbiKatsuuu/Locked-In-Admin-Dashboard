@@ -1,7 +1,3 @@
-# Locked In Admin Dashboard
-
-A full-stack admin dashboard application with separate frontend and backend services.
-
 ## Project Structure
 
 ```
@@ -12,12 +8,6 @@ locked-in-admin-dashboard/
 ├── lockedin.sql      # Database schema and initial data
 └── README.md         # This file
 ```
-
-## Prerequisites
-
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-- XAMPP (v8.0 or higher)
 
 ## Database Setup
 
@@ -89,13 +79,3 @@ The application uses a MySQL database with the following main tables:
 - `player_stats`: Tracks player statistics and progress
 - `level_history`: Records level completion history
 - `death_logs`: Logs player deaths and attempts
-
-## Contributing
-
-1. Create a new branch for your feature
-2. Make your changes
-3. Submit a pull request
-
-## License
-
-[Add your license information here]
