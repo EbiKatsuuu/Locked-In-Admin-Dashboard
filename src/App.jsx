@@ -38,7 +38,6 @@ export default function PlayerStatsDashboard() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Simulate API call with mock data
     setIsLoading(true);
     setTimeout(() => {
       setStats(generateMockPlayers());
@@ -49,7 +48,6 @@ export default function PlayerStatsDashboard() {
   const fetchStats = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call with mock data
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setStats(generateMockPlayers());
     } catch (error) {
@@ -85,7 +83,6 @@ export default function PlayerStatsDashboard() {
     document.body.removeChild(link);
   };
 
-  // Calculate statistics
   const totalDeaths = stats.reduce((acc, player) => acc + player.deaths, 0);
   const averageTime =
     stats.length > 0
@@ -100,7 +97,6 @@ export default function PlayerStatsDashboard() {
     null
   );
 
-  // Filter stats based on search and level filter
   const filteredStats = stats.filter((player) => {
     const matchesSearch = player.username
       .toLowerCase()
@@ -114,10 +110,8 @@ export default function PlayerStatsDashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Arcade-style scanlines overlay */}
       <div className="scanlines" />
 
-      {/* Animated border glow effect */}
       <div className="border-glow">
         <div className="border-glow-top" />
         <div className="border-glow-bottom" />
@@ -132,10 +126,8 @@ export default function PlayerStatsDashboard() {
       />
 
       <div className="relative max-w-7xl mx-auto px-8 py-8 space-y-8">
-        {/* Stats Cards */}
         <StatsCards stats={stats} />
 
-        {/* Player Table */}
         <PlayerTable
           stats={stats}
           filteredStats={filteredStats}

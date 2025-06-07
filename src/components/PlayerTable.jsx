@@ -1,9 +1,9 @@
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Monitor, Smartphone, Zap, Puzzle, Skull } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchPlayers, resetPlayerStats } from "../services/api";
 
 const LEVEL_THRESHOLD = 5;
-const TABLE_HEADERS = ["PLAYER", "LEVEL", "DEATHS", "TIME", "STATUS", "ACTION"];
+const TABLE_HEADERS = ["PLAYER", "LEVEL", "DEATHS", "TIME", "PLATFORM", "TOP_UPGRADE", "TOP_RIDDLE", "ACTION"];
 const FILTER_OPTIONS = {
   ALL: "all",
   BEGINNER: "beginner",
@@ -104,36 +104,53 @@ const PlayerRow = ({ player, onReset }) => (
       </span>
     </td>
     <td className="p-4">
-      <span
-        className={`font-mono font-bold ${
-          player.deaths > 10 ? "text-red-400" : "text-yellow-400"
-        }`}
-        style={{
-          textShadow: `0 0 5px ${player.deaths > 10 ? "#f87171" : "#facc15"}`,
-        }}
-      >
-        {player.deaths}
-      </span>
+      <div className="flex items-center gap-2">
+        <Skull className="h-4 w-4 text-red-400" />
+        <span
+          className={`font-mono font-bold ${
+            player.deaths > 10 ? "text-red-400" : "text-yellow-400"
+          }`}
+          style={{
+            textShadow: `0 0 5px ${player.deaths > 10 ? "#f87171" : "#facc15"}`,
+          }}
+        >
+          {player.deaths}
+        </span>
+      </div>
     </td>
     <td className="p-4">
       <span
         className="text-yellow-400 font-mono"
         style={{ textShadow: "0 0 5px #facc15" }}
       >
-        {player.total_time}M
+        {Math.round(player.total_time / 60)}M
       </span>
     </td>
     <td className="p-4">
-      <span
-        className={`px-3 py-1 border font-mono font-bold ${
-          player.current_level > LEVEL_THRESHOLD
-            ? "border-yellow-400 text-yellow-400 bg-blue-800/20"
-            : "border-yellow-300 text-yellow-300 bg-blue-800/20"
-        }`}
-        style={{ textShadow: "0 0 5px currentColor" }}
-      >
-        {player.current_level > LEVEL_THRESHOLD ? "ADVANCED" : "BEGINNER"}
-      </span>
+      <div className="flex items-center gap-2">
+        {player.platform === "PC" ? (
+          <Monitor className="h-4 w-4 text-blue-400" />
+        ) : (
+          <Smartphone className="h-4 w-4 text-green-400" />
+        )}
+        <span className="text-yellow-400 font-mono">{player.platform}</span>
+      </div>
+    </td>
+    <td className="p-4">
+      <div className="flex items-center gap-2">
+        <Zap className="h-4 w-4 text-yellow-400" />
+        <span className="text-yellow-400 font-mono">
+          {player.upgrades.most_selected}
+        </span>
+      </div>
+    </td>
+    <td className="p-4">
+      <div className="flex items-center gap-2">
+        <Puzzle className="h-4 w-4 text-purple-400" />
+        <span className="text-yellow-400 font-mono">
+          {player.riddle_stats.most_solved}
+        </span>
+      </div>
     </td>
     <td className="p-4">
       <div className="flex gap-3">
