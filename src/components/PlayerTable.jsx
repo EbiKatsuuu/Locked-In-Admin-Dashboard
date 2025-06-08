@@ -1,40 +1,12 @@
-import { Search, Filter, Monitor, Smartphone, Zap, Puzzle, Skull } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchPlayers, resetPlayerStats } from "../services/api";
+import { Search, Filter, Monitor, Smartphone, Zap, Puzzle, Skull, Sword } from "lucide-react";
 
 const LEVEL_THRESHOLD = 5;
-const TABLE_HEADERS = ["PLAYER", "LEVEL", "DEATHS", "TIME", "PLATFORM", "TOP_UPGRADE", "TOP_RIDDLE", "ACTION"];
+const TABLE_HEADERS = ["PLAYER", "PUZZLE_ROOMS", "CAUSE_OF_DEATH", "TIME", "RUNS", "ENEMIES", "TOP_UPGRADE"];
 const FILTER_OPTIONS = {
   ALL: "all",
   BEGINNER: "beginner",
   ADVANCED: "advanced",
 };
-
-// Utility functions
-const generatePlayerId = (player) =>
-  player.id || `player-${player.username}-${Math.random()}`;
-
-const processPlayerData = (data) =>
-  Array.isArray(data)
-    ? data.map((player) => ({
-        ...player,
-        id: generatePlayerId(player),
-      }))
-    : [];
-
-const filterPlayers = (players, searchTerm, filterLevel) =>
-  players.filter((player) => {
-    const matchesSearch = player.username
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesLevel =
-      filterLevel === FILTER_OPTIONS.ALL ||
-      (filterLevel === FILTER_OPTIONS.BEGINNER &&
-        player.current_level <= LEVEL_THRESHOLD) ||
-      (filterLevel === FILTER_OPTIONS.ADVANCED &&
-        player.current_level > LEVEL_THRESHOLD);
-    return matchesSearch && matchesLevel;
-  });
 
 const LoadingSkeleton = () => (
   <div className="bg-blue-950 border-2 border-yellow-400 rounded-lg p-6">
@@ -60,7 +32,7 @@ const SearchAndFilter = ({
         placeholder="SEARCH_PLAYERS..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-input"
+        className="search-input pl-10 pr-4 py-2 bg-blue-800/30 border border-yellow-400 text-yellow-400 placeholder-yellow-400/60 font-mono"
       />
     </div>
     <div className="relative">
@@ -68,7 +40,7 @@ const SearchAndFilter = ({
       <select
         value={filterLevel}
         onChange={(e) => setFilterLevel(e.target.value)}
-        className="filter-select"
+        className="filter-select pl-10 pr-4 py-2 bg-blue-800/30 border border-yellow-400 text-yellow-400 font-mono"
       >
         <option value={FILTER_OPTIONS.ALL}>ALL_LEVELS</option>
         <option value={FILTER_OPTIONS.BEGINNER}>BEGINNER_≤5</option>
@@ -80,7 +52,7 @@ const SearchAndFilter = ({
 
 const PlayerAvatar = ({ username }) => (
   <div
-    className="w-10 h-10 border-2 border-yellow-400 flex items-center justify-center font-bold"
+    className="w-10 h-10 border-2 border-yellow-400 flex items-center justify-center font-bold text-yellow-400"
     style={{ boxShadow: "0 0 10px #facc15" }}
   >
     {username.charAt(0).toUpperCase()}
@@ -88,33 +60,33 @@ const PlayerAvatar = ({ username }) => (
 );
 
 const PlayerRow = ({ player, onReset }) => (
-  <tr className="table-row">
-    <td className="table-cell p-4">
+  <tr className="border-b border-yellow-400/30 hover:bg-blue-800/20">
+    <td className="p-4">
       <div className="flex items-center gap-3">
         <PlayerAvatar username={player.username} />
-        <span>{player.username}</span>
+        <span className="text-yellow-400 font-mono">{player.username}</span>
       </div>
     </td>
     <td className="p-4">
-      <span
-        className="px-4 py-2 bg-blue-800/50 border border-yellow-400 text-yellow-400 font-mono font-bold"
-        style={{ textShadow: "0 0 5px #facc15" }}
-      >
-        LVL_{player.current_level}
-      </span>
+      <div className="flex items-center gap-2">
+        <Puzzle className="h-4 w-4 text-purple-400" />
+        <span
+          className="px-3 py-1 bg-blue-800/50 border border-purple-400 text-purple-400 font-mono font-bold rounded"
+          style={{ textShadow: "0 0 5px #c084fc" }}
+        >
+          {player.riddle_stats?.total_solved || 0}
+        </span>
+      </div>
     </td>
     <td className="p-4">
       <div className="flex items-center gap-2">
         <Skull className="h-4 w-4 text-red-400" />
         <span
-          className={`font-mono font-bold ${
-            player.deaths > 10 ? "text-red-400" : "text-yellow-400"
-          }`}
-          style={{
-            textShadow: `0 0 5px ${player.deaths > 10 ? "#f87171" : "#facc15"}`,
-          }}
+          className="text-red-400 font-mono text-sm max-w-32 truncate"
+          style={{ textShadow: "0 0 5px #f87171" }}
+          title={player.cause_of_death || "Unknown"}
         >
-          {player.deaths}
+          {player.cause_of_death || "Unknown"}
         </span>
       </div>
     </td>
@@ -127,46 +99,35 @@ const PlayerRow = ({ player, onReset }) => (
       </span>
     </td>
     <td className="p-4">
+      <span
+        className="text-yellow-400 font-mono"
+        style={{ textShadow: "0 0 5px #facc15" }}
+      >
+        {player.total_runs}
+      </span>
+    </td>
+    <td className="p-4">
       <div className="flex items-center gap-2">
-        {player.platform === "PC" ? (
-          <Monitor className="h-4 w-4 text-blue-400" />
-        ) : (
-          <Smartphone className="h-4 w-4 text-green-400" />
-        )}
-        <span className="text-yellow-400 font-mono">{player.platform}</span>
+        <Sword className="h-4 w-4 text-red-400" />
+        <span
+          className="text-yellow-400 font-mono"
+          style={{ textShadow: "0 0 5px #facc15" }}
+        >
+          {player.total_enemies || 0}
+        </span>
       </div>
     </td>
     <td className="p-4">
       <div className="flex items-center gap-2">
         <Zap className="h-4 w-4 text-yellow-400" />
-        <span className="text-yellow-400 font-mono">
-          {player.upgrades.most_selected}
-        </span>
-      </div>
-    </td>
-    <td className="p-4">
-      <div className="flex items-center gap-2">
-        <Puzzle className="h-4 w-4 text-purple-400" />
-        <span className="text-yellow-400 font-mono">
-          {player.riddle_stats.most_solved}
-        </span>
-      </div>
-    </td>
-    <td className="p-4">
-      <div className="flex gap-3">
-        <button
-          className="text-yellow-400 hover:text-yellow-300 font-mono font-bold"
-          style={{ textShadow: "0 0 5px #facc15" }}
+        <span 
+          className="text-yellow-400 font-mono"
+          title={player.upgrades.most_selected}
         >
-          VIEW
-        </button>
-        <button
-          onClick={() => onReset(player.id)}
-          className="text-red-400 hover:text-red-300 font-mono font-bold"
-          style={{ textShadow: "0 0 5px #f87171" }}
-        >
-          RESET
-        </button>
+          {player.upgrades.most_selected && player.upgrades.most_selected.length > 15 
+            ? player.upgrades.most_selected.substring(0, 15) + "..." 
+            : player.upgrades.most_selected || "None"}
+        </span>
       </div>
     </td>
   </tr>
@@ -190,41 +151,33 @@ const NoResultsFound = () => (
   </div>
 );
 
-const PlayerTable = () => {
-  const [stats, setStats] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterLevel, setFilterLevel] = useState(FILTER_OPTIONS.ALL);
-
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const data = await fetchPlayers();
-        setStats(processPlayerData(data));
-      } catch (error) {
-        console.error("Error loading stats:", error);
-        setStats([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStats();
-  }, []);
-
+const PlayerTable = ({ 
+  stats = [], 
+  filteredStats = [], 
+  searchTerm = "", 
+  setSearchTerm, 
+  filterLevel = "all", 
+  setFilterLevel, 
+  onDataUpdate 
+}) => {
   const handleReset = async (playerId) => {
     try {
+      // Import the reset function here to avoid circular dependencies
+      const { resetPlayerStats } = await import("../services/api");
       await resetPlayerStats(playerId);
-      const updatedStats = await fetchPlayers();
-      setStats(processPlayerData(updatedStats));
+      
+      // Refresh the data in the parent component
+      if (onDataUpdate) {
+        onDataUpdate();
+      }
     } catch (error) {
       console.error("Error resetting player:", error);
+      alert("Failed to reset player stats. Please try again.");
     }
   };
 
-  const filteredStats = filterPlayers(stats, searchTerm, filterLevel);
-
-  if (loading) {
+  // If no data is provided, show loading
+  if (!stats || stats.length === 0) {
     return <LoadingSkeleton />;
   }
 
@@ -232,7 +185,12 @@ const PlayerTable = () => {
     <div className="bg-blue-950 border-2 border-yellow-400 rounded-lg p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h2 className="dashboard-title text-3xl">PLAYER_DATABASE</h2>
+          <h2 
+            className="text-3xl font-bold text-yellow-400 font-mono"
+            style={{ textShadow: "0 0 10px #facc15" }}
+          >
+            PLAYER_DATABASE
+          </h2>
           <p className="text-yellow-300 font-mono mt-1">
             &gt; SHOWING {filteredStats.length} OF {stats.length} RECORDS
           </p>
@@ -247,14 +205,18 @@ const PlayerTable = () => {
       </div>
 
       <div
-        className="overflow-x-auto border-2 border-yellow-400"
+        className="overflow-x-auto border-2 border-yellow-400 rounded"
         style={{ boxShadow: "0 0 15px #facc15" }}
       >
         <table className="w-full">
           <thead>
-            <tr className="table-header">
+            <tr className="bg-blue-800/50 border-b-2 border-yellow-400">
               {TABLE_HEADERS.map((header) => (
-                <th key={header} className="table-header-cell p-4 text-left">
+                <th 
+                  key={header} 
+                  className="p-4 text-left text-yellow-400 font-mono font-bold"
+                  style={{ textShadow: "0 0 5px #facc15" }}
+                >
                   {header}
                 </th>
               ))}
@@ -272,7 +234,7 @@ const PlayerTable = () => {
         </table>
       </div>
 
-      {filteredStats.length === 0 && <NoResultsFound />}
+      {filteredStats.length === 0 && stats.length > 0 && <NoResultsFound />}
     </div>
   );
 };

@@ -1,46 +1,53 @@
-import { Monitor, Smartphone, Puzzle, Zap } from "lucide-react";
+import { Users, Sword, Puzzle, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchPlayerStats } from "../services/api";
 
 const STATS_CONFIG = [
   {
-    icon: Monitor,
-    label: "PC_PLAYERS",
-    key: "platform_distribution",
-    suffix: "USERS",
-    formatter: (data) => data.platform_distribution?.PC || 0,
+    icon: Users,
+    label: "TOTAL_PLAYERS",
+    key: "total_players",
+    suffix: "REGISTERED",
+    formatter: (data) => data.total_players || 0,
   },
   {
-    icon: Smartphone,
-    label: "MOBILE_PLAYERS",
-    key: "platform_distribution",
-    suffix: "USERS",
-    formatter: (data) => data.platform_distribution?.Mobile || 0,
+    icon: Sword,
+    label: "ENEMIES_DEFEATED",
+    key: "total_enemies_defeated", 
+    suffix: "KILLS",
+    formatter: (data) => data.total_enemies_defeated || 0,
   },
   {
     icon: Puzzle,
-    label: "TOP_RIDDLE",
-    key: "riddle_stats",
-    suffix: (data) => `${data.riddle_stats?.distribution?.[data.riddle_stats?.most_solved] || 0} SOLVES`,
-    formatter: (data) => data.riddle_stats?.most_solved || "N/A",
+    label: "PUZZLE_ROOMS",
+    key: "total_puzzle_rooms_entered",
+    suffix: "ENTERED",
+    formatter: (data) => data.total_puzzle_rooms_entered || 0,
   },
   {
     icon: Zap,
     label: "TOP_UPGRADE",
-    key: "upgrade_stats",
-    suffix: (data) => `${data.upgrade_stats?.distribution?.[data.upgrade_stats?.most_popular] || 0} USES`,
-    formatter: (data) => data.upgrade_stats?.most_popular || "N/A",
+    key: "most_collected_upgrade",
+    suffix: (data) => {
+      const upgradeName = data.most_collected_upgrade || "None";
+      const count = data.upgrade_distribution?.[upgradeName] || 0;
+      return `${count} USES`;
+    },
+    formatter: (data) => {
+      const upgrade = data.most_collected_upgrade || "None";
+      // Truncate long upgrade names for display
+      return upgrade.length > 15 ? upgrade.substring(0, 15) + "..." : upgrade;
+    },
   }
 ];
 
 const processStatsData = (data) => ({
   ...data,
   total_players: parseInt(data.total_players) || 0,
-  total_deaths: parseInt(data.total_deaths) || 0,
-  avg_time: parseFloat(data.avg_time) || 0,
-  top_level: parseInt(data.top_level) || 0,
-  riddle_stats: data.riddle_stats || {},
-  upgrade_stats: data.upgrade_stats || {}
+  total_enemies_defeated: parseInt(data.total_enemies_defeated) || 0,
+  total_puzzle_rooms_entered: parseInt(data.total_puzzle_rooms_entered) || 0,
+  most_collected_upgrade: data.most_collected_upgrade || "None",
+  upgrade_distribution: data.upgrade_distribution || {}
 });
 
 const LoadingSkeleton = () => (
@@ -87,7 +94,13 @@ const StatCard = ({ stat, data }) => {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <p className="text-yellow-400 font-mono text-sm">{stat.label}</p>
-          <p className="text-2xl font-bold text-white">{String(value)}</p>
+          <p 
+            className="text-2xl font-bold text-white"
+            style={{ textShadow: "0 0 10px #fff" }}
+            title={stat.key === "most_collected_upgrade" ? data.most_collected_upgrade : undefined}
+          >
+            {String(value)}
+          </p>
           <p className="text-yellow-300 font-mono text-xs">{String(suffix)}</p>
         </div>
         <StatIcon Icon={stat.icon} />
@@ -96,13 +109,21 @@ const StatCard = ({ stat, data }) => {
   );
 };
 
-const StatsCards = () => {
+const StatsCards = ({ stats: propStats }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadStats = async () => {
+      // If stats are passed as props, use them directly
+      if (propStats) {
+        setStats(processStatsData(propStats));
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise fetch from API
       try {
         const data = await fetchPlayerStats();
         setStats(processStatsData(data));
@@ -115,7 +136,7 @@ const StatsCards = () => {
     };
 
     loadStats();
-  }, []);
+  }, [propStats]);
 
   if (loading) {
     return <LoadingSkeleton />;
