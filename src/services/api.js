@@ -15,6 +15,8 @@ const transformPlayerData = (firebaseData) => {
     const totalRuns = runsArray.length;
     const totalDeaths = runsArray.filter(run => !run.wasCompleted).length;
     const totalTime = runsArray.reduce((sum, run) => sum + (run.runDuration || 0), 0);
+    const totalCurrency = runsArray.reduce((sum, run) => sum + (run.currencyCollected || 0), 0);
+    const totalLoops = runsArray.reduce((sum, run) => sum + (run.loopCount || 0), 0);
     const highestLevel = Math.max(...runsArray.map(run => run.highestStageReached || 1));
     const totalUpgrades = runsArray.reduce((sum, run) => sum + (run.totalUpgradesCollected || 0), 0);
     const totalPuzzles = runsArray.reduce((sum, run) => sum + (run.puzzleRoomsEntered || 0), 0);
@@ -22,7 +24,6 @@ const transformPlayerData = (firebaseData) => {
     
     // Find most recent cause of death (excluding "New run started")
     const getMostRecentCauseOfDeath = () => {
-      // Sort runs by timestamp (most recent first)
       const sortedRuns = runsArray
         .filter(run => run.causeOfDeath && run.causeOfDeath !== "New run started")
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -31,16 +32,15 @@ const transformPlayerData = (firebaseData) => {
         return sortedRuns[0].causeOfDeath;
       }
       
-      // If no meaningful death found, check all runs
       const allSorted = runsArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       return allSorted[0]?.causeOfDeath || "Unknown";
     };
     
-    // Find most collected upgrade
+    // Find most collected upgrade across ALL runs for this player
     const upgradeFrequency = {};
     runsArray.forEach(run => {
       if (run.mostCollectedUpgrade && run.mostCollectedUpgrade !== "") {
-        const upgradeName = run.mostCollectedUpgrade.replace(/"/g, ''); // Remove quotes
+        const upgradeName = run.mostCollectedUpgrade.replace(/"/g, '');
         upgradeFrequency[upgradeName] = (upgradeFrequency[upgradeName] || 0) + 1;
       }
     });
@@ -58,21 +58,23 @@ const transformPlayerData = (firebaseData) => {
       total_time: Math.round(totalTime), // in seconds
       total_runs: totalRuns,
       total_enemies: totalEnemies,
-      platform: Math.random() > 0.5 ? "PC" : "Mobile", // Since platform isn't in the data
-      cause_of_death: getMostRecentCauseOfDeath(), // Added this missing field
+      total_currency: totalCurrency, // NEW FIELD
+      total_loops: totalLoops, // NEW FIELD
+      platform: Math.random() > 0.5 ? "PC" : "Mobile",
+      cause_of_death: getMostRecentCauseOfDeath(),
       upgrades: {
         most_selected: mostCollectedUpgrade,
         total_collected: totalUpgrades
       },
       riddle_stats: {
-        most_solved: "Logic Puzzle", // Placeholder since riddle types aren't specified
+        most_solved: "Logic Puzzle",
         total_solved: totalPuzzles
       },
       runs: runsArray
     });
   });
   
-  return players;
+  return players; 
 };
 
 // Calculate aggregate stats from all player data

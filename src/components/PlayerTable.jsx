@@ -1,11 +1,25 @@
-import { Search, Filter, Monitor, Smartphone, Zap, Puzzle, Skull, Sword } from "lucide-react";
+import { Search, Filter, Clock, Coins, Repeat, Zap } from "lucide-react";
 
 const LEVEL_THRESHOLD = 5;
-const TABLE_HEADERS = ["PLAYER", "PUZZLE_ROOMS", "CAUSE_OF_DEATH", "TIME", "RUNS", "ENEMIES", "TOP_UPGRADE"];
+const TABLE_HEADERS = ["PLAYER", "RUN_TIME", "CURRENCY", "LOOPS", "TOP_UPGRADE"];
 const FILTER_OPTIONS = {
   ALL: "all",
   BEGINNER: "beginner",
   ADVANCED: "advanced",
+};
+
+const formatTime = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  }
+  return `${secs}s`;
 };
 
 const LoadingSkeleton = () => (
@@ -69,64 +83,48 @@ const PlayerRow = ({ player, onReset }) => (
     </td>
     <td className="p-4">
       <div className="flex items-center gap-2">
-        <Puzzle className="h-4 w-4 text-purple-400" />
+        <Clock className="h-4 w-4 text-blue-400" />
+        <span
+          className="text-blue-300 font-mono font-bold"
+          style={{ textShadow: "0 0 5px #93c5fd" }}
+        >
+          {formatTime(player.total_time || 0)}
+        </span>
+      </div>
+    </td>
+    <td className="p-4">
+      <div className="flex items-center gap-2">
+        <Coins className="h-4 w-4 text-yellow-400" />
+        <span
+          className="px-3 py-1 bg-blue-800/50 border border-yellow-400 text-yellow-400 font-mono font-bold rounded"
+          style={{ textShadow: "0 0 5px #facc15" }}
+        >
+          {(player.total_currency || 0).toLocaleString()}
+        </span>
+      </div>
+    </td>
+    <td className="p-4">
+      <div className="flex items-center gap-2">
+        <Repeat className="h-4 w-4 text-purple-400" />
         <span
           className="px-3 py-1 bg-blue-800/50 border border-purple-400 text-purple-400 font-mono font-bold rounded"
           style={{ textShadow: "0 0 5px #c084fc" }}
         >
-          {player.riddle_stats?.total_solved || 0}
+          {player.total_loops || 0}
         </span>
       </div>
     </td>
     <td className="p-4">
       <div className="flex items-center gap-2">
-        <Skull className="h-4 w-4 text-red-400" />
-        <span
-          className="text-red-400 font-mono text-sm max-w-32 truncate"
-          style={{ textShadow: "0 0 5px #f87171" }}
-          title={player.cause_of_death || "Unknown"}
-        >
-          {player.cause_of_death || "Unknown"}
-        </span>
-      </div>
-    </td>
-    <td className="p-4">
-      <span
-        className="text-yellow-400 font-mono"
-        style={{ textShadow: "0 0 5px #facc15" }}
-      >
-        {Math.round(player.total_time / 60)}M
-      </span>
-    </td>
-    <td className="p-4">
-      <span
-        className="text-yellow-400 font-mono"
-        style={{ textShadow: "0 0 5px #facc15" }}
-      >
-        {player.total_runs}
-      </span>
-    </td>
-    <td className="p-4">
-      <div className="flex items-center gap-2">
-        <Sword className="h-4 w-4 text-red-400" />
-        <span
-          className="text-yellow-400 font-mono"
-          style={{ textShadow: "0 0 5px #facc15" }}
-        >
-          {player.total_enemies || 0}
-        </span>
-      </div>
-    </td>
-    <td className="p-4">
-      <div className="flex items-center gap-2">
-        <Zap className="h-4 w-4 text-yellow-400" />
+        <Zap className="h-4 w-4 text-green-400" />
         <span 
-          className="text-yellow-400 font-mono"
-          title={player.upgrades.most_selected}
+          className="text-green-400 font-mono"
+          style={{ textShadow: "0 0 5px #4ade80" }}
+          title={player.upgrades?.most_selected || "None"}
         >
-          {player.upgrades.most_selected && player.upgrades.most_selected.length > 15 
-            ? player.upgrades.most_selected.substring(0, 15) + "..." 
-            : player.upgrades.most_selected || "None"}
+          {player.upgrades?.most_selected && player.upgrades.most_selected.length > 18
+            ? player.upgrades.most_selected.substring(0, 18) + "..." 
+            : player.upgrades?.most_selected || "None"}
         </span>
       </div>
     </td>
@@ -162,11 +160,9 @@ const PlayerTable = ({
 }) => {
   const handleReset = async (playerId) => {
     try {
-      // Import the reset function here to avoid circular dependencies
       const { resetPlayerStats } = await import("../services/api");
       await resetPlayerStats(playerId);
       
-      // Refresh the data in the parent component
       if (onDataUpdate) {
         onDataUpdate();
       }
@@ -176,7 +172,6 @@ const PlayerTable = ({
     }
   };
 
-  // If no data is provided, show loading
   if (!stats || stats.length === 0) {
     return <LoadingSkeleton />;
   }

@@ -54,31 +54,40 @@ export default function PlayerStatsDashboard() {
   };
 
   const handleExport = () => {
-    if (stats.length === 0) {
-      alert("No data to export");
-      return;
-    }
+  if (stats.length === 0) {
+    alert("No data to export");
+    return;
+  }
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      "Username,Level,Deaths,Time Played (minutes),Total Runs,Platform,Top Upgrade,Puzzles Solved\n" +
-      stats
-        .map(
-          (player) =>
-            `${player.username},${player.current_level},${player.deaths},${
-              Math.round(player.total_time / 60)
-            },${player.total_runs},${player.platform},"${player.upgrades.most_selected}",${player.riddle_stats.total_solved}`
-        )
-        .join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `player_stats_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const formatTimeForCSV = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hours}h ${minutes}m ${secs}s`;
   };
+
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
+    "Username,Run Time,Currency,Loops,Top Upgrade,Total Runs\n" +
+    stats
+      .map(
+        (player) =>
+          `${player.username},${formatTimeForCSV(player.total_time || 0)},${
+            player.total_currency || 0
+          },${player.total_loops || 0},"${player.upgrades?.most_selected || "None"}",${
+            player.total_runs
+          }`
+      )
+      .join("\n");
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `player_stats_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   // Filter stats based on search and level filter
   const filteredStats = stats.filter((player) => {
