@@ -6,8 +6,8 @@ const DashboardHeader = ({ isLoading, handleRefresh, handleExport }) => {
       <div className="max-w-7xl mx-auto px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="relative">
-            <h1 className="dashboard-title">LOCKED IN</h1>
-            <div className="dashboard-subtitle">ADMIN TERMINAL</div>
+            <h1 className="dashboard-title">Echoes: The Forgotten</h1>
+            <div className="dashboard-subtitle">Global Leaderboard</div>
             <div className="dashboard-status">
               &gt; MONITORING PLAYER DATA...
             </div>
